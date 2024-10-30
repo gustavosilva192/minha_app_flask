@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Compras</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.0/quagga.min.js"></script>
+</head>
+<body>
+    <h1>Lista de Compras</h1>
+    <button id="start-scanning">Iniciar Leitura de Código de Barras</button>
+    <div id="interactive" style="width: 100%; height: 300px;"></div>
+
+    <div id="product-list">
+        <!-- Aqui você pode listar os produtos adicionados -->
+    </div>
+
+    <!-- Popup para cadastro de produto -->
+    <div id="popup" style="display:none;">
+        <h2>Cadastrar Produto</h2>
+        <form id="add-product-form">
+            <input type="hidden" name="barcode" id="product-barcode" required>
+            <input type="text" name="name" placeholder="Nome do Produto" required><br>
+            <input type="text" name="category" placeholder="Categoria"><br>
+            <textarea name="description" placeholder="Descrição"></textarea><br>
+            <input type="text" name="price" placeholder="Preço" required><br>
+            <button type="submit">Salvar</button>
+        </form>
+        <button id="close-popup">Fechar</button>
+    </div>
+
+    <script>
+        document.getElementById('start-scanning').addEventListener('click', function () {
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#interactive')    // o elemento onde a câmera será exibida
+                },
+                decoder: {
+                    readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader"] // Especifique os tipos de código que você deseja ler
+                }
+            }, function(err) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                console.log("Iniciando a leitura...");
+                Quagga.start();
+            });
+
+            Quagga.onDetected(function(result) {
+                const code = result.codeResult.code;
+                console.log("Código de barras detectado: ", code);
+                
+                // Envie o código de barras para o servidor ou faça a chamada para a próxima ação
+                fetch('/check_product?barcode=' + code)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data) {
+                            alert('Produto: ' + data.name + ' | Preço: ' + data.price);
+                        } else {
+                            alert('Produto não encontrado!');
+                        }
+                    });
+                
+                // Para parar a leitura após a detecção
+                Quagga.stop();
+            });
+        });
+
+
+        $(document).ready(function() {
+            $('#scan-button').on('click', function() {
+                // Aqui você pode usar uma biblioteca para leitura de código de barras
+                let barcode = "123456789"; // Simulação da leitura
+                checkProduct(barcode);
+            });
+
+            $('#add-product-form').on('submit', function(e) {
+                e.preventDefault();
+                let formData = $(this).serialize();
+                $.post('/add_product', formData, function(response) {
+                    // Adicione o produto à lista após o cadastro
+                    $('#product-list').append('<div>' + response.name + ' - ' + response.price + '</div>');
+                    $('#popup').hide();
+                });
+            });
+
+            $('#close-popup').on('click', function() {
+                $('#popup').hide();
+            });
+        });
+
+        function checkProduct(barcode) {
+            $.get('/check_product?barcode=' + barcode, function(product) {
+                if (product) {
+                    // Se o produto já existe, adicione-o à lista
+                    $('#product-list').append('<div>' + product.name + ' - ' + product.price + '</div>');
+                } else {
+                    // Se o produto não existe, abra o pop-up
+                    $('#product-barcode').val(barcode);
+                    $('#popup').show();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

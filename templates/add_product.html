@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.0/quagga.min.js"></script>
+    <title>Escanear Código de Barras</title>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Adicionar Produto</h1>
+        <button id="start-scanner" class="btn btn-secondary">Escanear Código de Barras</button>
+        <div id="scanner-container" style="display: none;">
+            <div id="interactive" style="width: 100%; height: 300px;"></div>
+        </div>
+        <form method="POST" id="product-form">
+            <div class="form-group">
+                <input type="text" name="name" class="form-control" placeholder="Nome" required>
+            </div>
+            <input type="text" id="barcode" name="barcode" class="form-control" placeholder="Código de barras" required>
+            <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('start-scanner').addEventListener('click', function() {
+            const scannerContainer = document.getElementById('scanner-container');
+            scannerContainer.style.display = 'block';
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#interactive'),
+                    constraints: {
+                        facingMode: "environment"
+                    },
+                },
+                decoder: {
+                    readers: ["ean_reader"],
+                    multiple: false
+                }
+            }, function(err) {
+                if (err) {
+                    console.error("Erro na inicialização:", err);
+                    return;
+                }
+                console.log("Quagga está pronto!");
+                Quagga.start();
+            });
+
+            Quagga.onDetected(function(data) {
+                const code = data.codeResult.code;
+                document.getElementById('barcode').value = code; // Atualiza o input do código de barras
+                Quagga.stop(); // Para a captura
+                scannerContainer.style.display = 'none'; // Esconde o vídeo
+            });
+        });
+    </script>
+</body>
+</html>
