@@ -1,0 +1,31 @@
+<!-- templates/view_shopping_list.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualizar Lista de Compras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Lista de Compras: {{ shopping_list.name }}</h1>
+    <h2>Produtos</h2>
+    <ul>
+        {% for product in shopping_list.products %}
+            <li>
+                {{ product.name }} - R$ {{ product.price }}
+                <a href="{{ url_for('remove_product_from_list', shopping_list_id=shopping_list.id, product_id=product.id) }}">Remover</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <form method="POST" action="{{ url_for('add_product_to_list', shopping_list_id=shopping_list.id) }}">
+        <label for="product_id">Adicionar Produto:</label>
+        <select name="product_id" id="product_id">
+            {% for product in all_products %}
+                <option value="{{ product.id }}">{{ product.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Adicionar</button>
+    </form>
+    <a href="{{ url_for('shopping_lists') }}">Voltar</a>
+</body>
+</html>

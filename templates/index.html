@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Meta tag para responsividade -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Cadastro de Produtos</title>
+    <style>
+        body {
+            padding: 20px;
+        }
+        .product-card {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Lista de Produtos</h1>
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4">
+                    <div class="product-card">
+                        <h5>{{ product.name }} (Código: {{ product.barcode }})</h5>
+                        <div>
+                            {% set prices = product.prices %}
+                            {% if prices %}
+                                <p>Último Preço: R$ {{ prices[-1].price }}</p>
+                                <p>Preço Mínimo: R$ {{ prices | map(attribute='price') | min }}</p>
+                            {% else %}
+                                <p>Sem preços cadastrados.</p>
+                            {% endif %}
+                            <form action="{{ url_for('add_price', product_id=product.id) }}" method="POST">
+                                <div class="form-group">
+                                    <input type="number" name="price" class="form-control" step="0.01" placeholder="Preço" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Adicionar Preço</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('add_product') }}" class="btn btn-success">Adicionar Produto</a>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

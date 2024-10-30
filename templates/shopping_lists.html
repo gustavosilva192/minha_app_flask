@@ -1,0 +1,23 @@
+<!-- templates/shopping_lists.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Listas de Compras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Minhas Listas de Compras</h1>
+    <a href="{{ url_for('create_shopping_list') }}">Criar Nova Lista de Compras</a>
+    <ul>
+        {% for shopping_list in shopping_lists %}
+            <li>
+                {{ shopping_list.name }} - {{ shopping_list.date_created.strftime('%Y-%m-%d') }}
+                <a href="{{ url_for('edit_shopping_list', shopping_list_id=shopping_list.id) }}">Editar</a>
+                <a href="{{ url_for('delete_shopping_list', shopping_list_id=shopping_list.id) }}">Excluir</a>
+                <a href="{{ url_for('view_shopping_list', shopping_list_id=shopping_list.id) }}">Visualizar</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
