@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for
 from models import db, Product, Price
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///products.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:eWbcsVjtfEMfledXaccIgQkeCpDlbwGJ@postgres.railway.internal:5432/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
